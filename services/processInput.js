@@ -1,18 +1,20 @@
 const csv = require('csv-parser');
 const fs = require('fs');
+const fileUtils = require('./../utils/fileUtils');
 
 const results = [];
+let data = {};
 
 const generateNodes = (results) => {
     return results.map((row, index) => {
-        return { 'id': index };
+        return { 'id': index.toString() };
     })
 }
 
-const findTargetsForRow = (row) => {
+const findTargetNodes = (row) => {
     const result = Object.values(row).map((element, index) => {
         if (element === '1') {
-            return index
+            return index.toString()
         }
     })
 
@@ -20,16 +22,16 @@ const findTargetsForRow = (row) => {
 }
 
 const generateLinks = (results) => {
-    const res = results.map((row, index) => {
-        const targets = findTargetsForRow(row);
+    const sourceNodes = results.map((row, index) => {
+        const targets = findTargetNodes(row);
         return { index, targets }
     })
 
-    return res.map((el) => {
+    return sourceNodes.map((el) => {
         return el.targets.map((target) => {
-            return { source: el.index, target }
+            return { source: el.index.toString(), target }
         })
-    })
+    }).flat()
 }
 
 
@@ -39,6 +41,6 @@ fs.createReadStream('uploads/input.csv')
     .on('end', () => {
         const nodes = generateNodes(results)
         const links = generateLinks(results)
-        console.log(links)
-        console.log('CSV file successfully processed');
+        data = { nodes, links }
+        fileUtils.write(data, 'processedFile.json')
     });

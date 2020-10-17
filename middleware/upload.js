@@ -13,8 +13,7 @@ var storage = multer.diskStorage({
         cb(null, "uploads/");
     },
     filename: (req, file, cb) => {
-        console.log(file.originalname);
-        cb(null, 'input.csv');
+        cb(null, `${file.originalname}`);
     },
 });
 
